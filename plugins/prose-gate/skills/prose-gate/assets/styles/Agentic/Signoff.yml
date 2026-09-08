@@ -1,0 +1,15 @@
+extends: existence
+message: "Postamble: '%s'. End at the last useful sentence."
+level: error
+ignorecase: true
+nonword: false
+tokens:
+  - (i )?hope (this|that) helps
+  - let me know if you
+  - feel free to
+  - in (conclusion|summary)
+  - to (summarize|sum up)
+  - and there you have it
+  - that's it[!.]
+  - happy (coding|hacking)
+  - don't hesitate to

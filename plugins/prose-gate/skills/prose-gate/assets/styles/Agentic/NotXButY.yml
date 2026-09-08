@@ -1,0 +1,9 @@
+extends: existence
+message: "Rhetorical contrast: '%s'. Make the positive claim only."
+level: error
+ignorecase: true
+nonword: true
+tokens:
+  - '\bnot (just|only|merely|simply)\b[^.!?]{0,60}?,? but\b'
+  - "\\bisn't (just|only|about)\\b[^.!?]{0,60}?,? it's\\b"
+  - '\bmore than (just|simply)\b'

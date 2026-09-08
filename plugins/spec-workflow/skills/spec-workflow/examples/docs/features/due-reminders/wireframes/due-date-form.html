@@ -1,0 +1,58 @@
+<!-- covers S-01.1, S-01.2 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Set a due time — wireframe</title>
+<link rel="stylesheet" href="../../.wireframe.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/wired-elements@3.0.0-rc.6/+esm"></script>
+</head>
+<body>
+
+<h1>Set a due time</h1>
+<p class="who">Owner or Collaborator</p>
+
+<wired-card>
+  <p>Setting a due time schedules one reminder for the task owner. Changing it later moves
+     that reminder rather than adding a second one.</p>
+
+  <label class="field">
+    <span class="label">Task</span>
+    <wired-input placeholder="Send the quarterly numbers"></wired-input>
+    <span class="hint">Read-only — taken from the task being edited.</span>
+  </label>
+
+  <label class="field">
+    <span class="label">Due</span>
+    <wired-input placeholder="12 Sep 2026, 09:00"></wired-input>
+  </label>
+
+  <label class="field">
+    <span class="label">Remind me before</span>
+    <wired-input placeholder="1 hour"></wired-input>
+    <span class="hint">Default lead time; the owner can change it per task.</span>
+  </label>
+
+  <p class="note">Reminder will fire <strong>12 Sep 2026, 08:00</strong> — one hour before it is due.</p>
+
+  <div class="row">
+    <wired-button>Save due time</wired-button>
+    <a href="reminder-scheduled.html">(saves → scheduled)</a>
+  </div>
+</wired-card>
+
+<div class="state">
+  <span class="label">S-01.2 Alternative — due time changed</span>
+  <p><strong>This task already has a reminder.</strong> Saving moves it from
+     <code>11 Sep 2026, 08:00</code> to the new fire time. The task keeps one reminder;
+     the button reads "Reschedule reminder".</p>
+</div>
+
+<nav class="nav">
+  <a href="reminder-scheduled.html">Scheduled</a>
+  <a href="delivery-status.html">Delivery status</a>
+</nav>
+
+</body>
+</html>

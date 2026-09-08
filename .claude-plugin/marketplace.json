@@ -1,0 +1,31 @@
+{
+  "name": "jctosta-toolbox",
+  "owner": {
+    "name": "Carlos Tosta",
+    "url": "https://github.com/jctosta"
+  },
+  "description": "Personal toolbox of Claude Code plugins: a spec-first development workflow, a qlty quality gate, and a Vale prose gate",
+  "plugins": [
+    {
+      "name": "spec-workflow",
+      "source": "./plugins/spec-workflow",
+      "description": "Spec-first development workflow: define-app, explore, refine, design, test-spec, feedback, status — artifacts validated before code, with traceability lint and a local review site",
+      "category": "workflow",
+      "tags": ["spec", "requirements", "testing", "workflow"]
+    },
+    {
+      "name": "quality-gate",
+      "source": "./plugins/quality-gate",
+      "description": "Guided qlty setup: assess a project, decide which checks and thresholds actually matter, then enforce them as a quality gate in CI, git hooks and agent instructions — with the reasoning committed alongside the config",
+      "category": "development",
+      "tags": ["quality", "linting", "qlty", "static-analysis", "ci"]
+    },
+    {
+      "name": "prose-gate",
+      "source": "./plugins/prose-gate",
+      "description": "Guided Vale setup aimed at the prose agents write \u2014 preamble, self-narration, marketing adjectives, hedging, sign-offs. Profiles a repo, decides which rules earn their noise, then enforces them while an agent writes rather than after the fact",
+      "category": "development",
+      "tags": ["prose", "vale", "documentation", "writing", "linting"]
+    }
+  ]
+}

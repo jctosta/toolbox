@@ -1,0 +1,17 @@
+extends: existence
+message: "Emoji in prose: '%s'."
+level: error
+nonword: true
+# The ranges deliberately exclude Arrows (2190-21FF), Mathematical Operators
+# (2200-22FF) and Box Drawing / Geometric Shapes (2500-25FF). A wider range
+# catches the arrow in "(-> future)" and every ASCII-art table border, which is
+# punctuation, not emoji. Misc Symbols and Dingbats stay in: those are real.
+tokens:
+  - '[\x{1F000}-\x{1FAFF}]'
+  - '[\x{2600}-\x{27BF}]'
+  - '[\x{2B1B}-\x{2BFF}]'
+  - '[\x{231A}-\x{231B}]'
+  - '[\x{23E9}-\x{23FA}]'
+  - '\x{FE0F}'
+  - '\x{20E3}'
+  - '\x{FE0F}'

@@ -1,0 +1,9 @@
+{
+  "name": "spec-workflow",
+  "description": "Spec-first development workflow with phase commands, traceability lint and a local review site",
+  "author": {
+    "name": "Carlos Tosta",
+    "url": "https://github.com/jctosta"
+  },
+  "license": "MIT"
+}

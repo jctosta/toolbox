@@ -1,0 +1,9 @@
+{
+  "name": "prose-gate",
+  "description": "Guided Vale setup: profile a project's prose, decide which rules earn their noise, and enforce them while an agent writes rather than after the fact",
+  "author": {
+    "name": "Carlos Tosta",
+    "url": "https://github.com/jctosta"
+  },
+  "license": "MIT"
+}

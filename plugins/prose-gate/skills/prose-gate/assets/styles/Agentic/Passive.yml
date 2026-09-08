@@ -1,0 +1,7 @@
+extends: existence
+message: "Passive voice: '%s'. Name the actor."
+level: warning
+ignorecase: true
+nonword: true
+tokens:
+  - '\b(?:am|are|is|was|were|be|been|being)\s+(?:\w+ly\s+)?(?:\w+(?:ed|en))\b'

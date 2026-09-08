@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Release calls this workflow rather than repeating its steps. Tool installs
+  # and the checks they enable then cannot drift apart from what a tag runs.
+  workflow_call:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install the mermaid validator
+        run: npm install -g @probelabs/maid
+      # Pinned: the Agentic style ships regex tokens a future Vale release could
+      # read differently, and an unpinned linter turns a build red with no
+      # commit to blame. Installed here rather than in a job of its own so the
+      # vale-backed checks in section 11 run instead of skipping.
+      - name: Install Vale
+        run: |
+          curl -sSL https://github.com/errata-ai/vale/releases/download/v3.13.0/vale_3.13.0_Linux_64-bit.tar.gz \
+            | sudo tar -xz -C /usr/local/bin vale
+          vale --version
+      - name: Run plugin checks (lint fixtures, status, review site, mermaid, prose)
+        # --strict: a missing maid or vale fails the run instead of printing
+        # `skip`, so a green build has actually looked at everything.
+        run: python tests/run_checks.py --strict
+      # This repo lints its own prose with the style it ships. Errors block;
+      # the warning tier stays visible to anyone running `vale .` by hand.
+      - name: Lint prose
+        run: vale --minAlertLevel=error .
+
+  validate-manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Validate marketplace and plugin manifests
+        # Local schema validation only — no API auth involved.
+        run: claude plugin validate .

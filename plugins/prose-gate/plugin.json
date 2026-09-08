@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "prose-gate",
+  "description": "Guided Vale setup: profile a project's prose, decide which rules earn their noise, and enforce them while an agent writes rather than after the fact",
+  "author": {
+    "name": "Carlos Tosta",
+    "url": "https://github.com/jctosta"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jctosta/toolbox",
+  "repository": "https://github.com/jctosta/toolbox",
+  "keywords": [
+    "prose",
+    "vale",
+    "linting",
+    "documentation",
+    "writing"
+  ]
+}

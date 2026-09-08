@@ -1,0 +1,6 @@
+extends: readability
+message: "Grade level is %s. Aim under 12."
+level: suggestion
+grade: 12
+metrics:
+  - Flesch-Kincaid

@@ -1,0 +1,13 @@
+extends: existence
+message: "Narration: '%s'. Describe the system, not your own process."
+level: error
+ignorecase: true
+tokens:
+  - i(?:'ve| have) (created|added|updated|implemented|refactored|fixed|removed|changed|written)
+  - i(?:'ll| will) (now|go ahead|proceed)
+  - (let me|i'll) (explain|walk you through|start by|show you)
+  - now (that we have|let's|we can)
+  - as (you|we) can see
+  - as (mentioned|noted|discussed) (above|earlier|previously)
+  - what (i did|this does) here is
+  - the (code|snippet|example) (above|below) (shows|demonstrates)

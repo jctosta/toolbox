@@ -1,0 +1,63 @@
+<!-- covers S-02.1, S-02.2, S-02.3, S-01.3 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reminder delivery — wireframe</title>
+<link rel="stylesheet" href="../../.wireframe.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/wired-elements@3.0.0-rc.6/+esm"></script>
+</head>
+<body>
+
+<h1>Reminder delivery</h1>
+<p class="who">Owner</p>
+
+<wired-card>
+  <table>
+    <tr><th>Task</th><td>Send the quarterly numbers</td></tr>
+    <tr><th>Status</th><td>SENT</td></tr>
+    <tr><th>Fired</th><td>12 Sep 2026, 08:00</td></tr>
+  </table>
+</wired-card>
+
+<h2>Channels</h2>
+<wired-card>
+  <table>
+    <tr><th>Channel</th><th>Outcome</th><th>Detail</th></tr>
+    <tr><td>Email</td><td>Delivered</td><td>08:00:02</td></tr>
+    <tr><td>Push</td><td>Skipped — muted</td><td>Muted since 3 Aug 2026</td></tr>
+  </table>
+  <p class="note">A muted channel is skipped, never retried and never counted as a failure (INV-02).</p>
+
+  <div class="row">
+    <wired-button>Mute or unmute channels</wired-button>
+    <a href="reminder-scheduled.html">What was scheduled</a>
+  </div>
+</wired-card>
+
+<div class="state">
+  <span class="label">S-02.2 Alternative — no muted channels</span>
+  <p>Every channel shows <em>Delivered</em>, the detail column carries only timestamps, and
+     the summary line reads "nothing was skipped".</p>
+</div>
+
+<div class="state">
+  <span class="label">S-02.3 Exception — one channel fails</span>
+  <p><strong>Push could not be delivered.</strong> The reminder stays SENDING, Email stays
+     delivered, and no "reminder sent" event is recorded. Outstanding: Push.</p>
+</div>
+
+<div class="state">
+  <span class="label">S-01.3 Exception — due time already past</span>
+  <p><strong>No reminder was scheduled.</strong> The due time was behind the current moment
+     when it was saved, so the task carries the due time with no reminder attached.</p>
+</div>
+
+<nav class="nav">
+  <a href="due-date-form.html">Set a due time</a>
+  <a href="reminder-scheduled.html">Scheduled</a>
+</nav>
+
+</body>
+</html>

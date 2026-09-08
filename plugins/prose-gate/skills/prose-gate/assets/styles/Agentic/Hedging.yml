@@ -1,0 +1,15 @@
+extends: existence
+message: "Hedge: '%s'. State the claim or delete the sentence."
+level: warning
+ignorecase: true
+tokens:
+  - it('s| is) (worth|important) (noting|to note)
+  - it should be (noted|mentioned)
+  - (keep|bear) in mind
+  - generally speaking
+  - more often than not
+  - (in essence|at its core|essentially|fundamentally|basically)
+  - arguably
+  - to be fair
+  - in most cases
+  - as a general rule

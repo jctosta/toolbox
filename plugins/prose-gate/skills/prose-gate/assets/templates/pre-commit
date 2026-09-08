@@ -1,0 +1,84 @@
+#!/bin/sh
+# Prose gate, at the commit boundary.
+#
+# This is the reliable surface. The editing hook only sees files written with
+# the Write and Edit tools, so anything an agent creates with a shell heredoc,
+# `tee`, `sed -i` or a script slips past it. A commit hook sees the staged
+# content whatever produced it.
+#
+# Self-limiting on purpose: no vale, no .vale.ini, or nothing staged worth
+# checking, and it exits 0 without comment.
+#
+# POSIX sh with no arrays or `mapfile`, so it runs on the bash 3.2 that macOS
+# still ships as well as anything newer.
+
+command -v vale >/dev/null 2>&1 || exit 0
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cfg=""
+for c in "$root/.vale.ini" "$root/_vale.ini"; do
+  [ -f "$c" ] && { cfg="$c"; break; }
+done
+[ -n "$cfg" ] || exit 0
+
+# Lint the INDEX, not the working tree.
+#
+# `vale path/to/file` reads what is on disk, which is not what is about to be
+# committed. With `git add -p`, or a fix made after staging, the two differ:
+# the working tree can be clean while the staged content is not, and the commit
+# would sail through carrying prose nobody checked. `git show :path` reads the
+# blob from the index, so what is linted is exactly what lands.
+PROSE_SNAP=$(mktemp -d) || exit 0
+export PROSE_SNAP
+trap 'rm -rf "$PROSE_SNAP"' EXIT HUP INT TERM
+
+# NUL-delimited from end to end, and never through a shell variable.
+#
+# Without `-z`, git renders a path it considers unusual - anything non-ASCII
+# under the default core.quotePath, and any name containing a quote, backslash
+# or control character - as a C-style quoted string: `revisão.md` arrives as
+# "revis\303\243o.md". Feeding that back to `git show` looks up a file that
+# does not exist, and a hook that skips what it cannot read is a hook that
+# passes the commit. `-z` emits the real bytes, so nothing needs unquoting.
+# A shell variable cannot hold them either, since NUL terminates the value.
+# Only files that still exist are considered (A/C/M, never deleted).
+git diff --cached --name-only -z --diff-filter=ACM \
+  -- '*.md' '*.mdx' '*.txt' '*.adoc' '*.rst' \
+     '*.go' '*.py' '*.ts' '*.tsx' '*.js' '*.jsx' '*.rs' \
+     '*.java' '*.rb' '*.sh' '*.yml' '*.yaml' 2>/dev/null \
+  | xargs -0 sh -c '
+      for f do
+        [ -n "$f" ] || continue
+        mkdir -p "$PROSE_SNAP/$(dirname "$f")" 2>/dev/null || continue
+        git show ":$f" > "$PROSE_SNAP/$f" 2>/dev/null || rm -f "$PROSE_SNAP/$f"
+      done' _
+
+[ -n "$(find "$PROSE_SNAP" -type f -print 2>/dev/null | head -n 1)" ] || exit 0
+
+# Run from the snapshot with the repo's own config, so paths stay
+# repo-relative: the `[docs/**]` style sections in .vale.ini match the same way
+# they would on a normal run, and findings name the real file. StylesPath is
+# resolved relative to the config, which is still in the repo.
+#
+# `find -exec ... +` passes the names as arguments with no delimiter to get
+# wrong, and batches them so a large staged set stays within one command line.
+out=$(cd "$PROSE_SNAP" && find . -type f -exec \
+      vale --config="$cfg" --minAlertLevel=error --output=line {} + 2>/dev/null \
+      | sed 's|^\./||')
+
+# Findings are the only thing worth blocking on. Vale's own exit code is
+# ignored deliberately: a broken config or an unreadable file must not stop
+# someone committing.
+if [ -n "$out" ]; then
+  echo "Prose gate: error-level findings in staged content." >&2
+  echo "$out" >&2
+  echo >&2
+  echo "These are read from the index, so a fix has to be staged to count." >&2
+  echo "Fix the text, or - when a flagged phrase is correct as written - mark it:" >&2
+  echo "    <!-- vale Agentic.RuleName = NO -->" >&2
+  echo "    ...the line that is correct..." >&2
+  echo "    <!-- vale Agentic.RuleName = YES -->" >&2
+  exit 1
+fi
+
+exit 0

@@ -1,0 +1,10 @@
+{
+  "feed": "",
+  "vale_version": ">=3.0.0",
+  "coverage": 0.0,
+  "learn": "",
+  "authors": [],
+  "license": "MIT",
+  "lang": "en",
+  "description": "Rules against agent-generated preamble, narration and padding."
+}

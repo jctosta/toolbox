@@ -1,0 +1,34 @@
+extends: existence
+message: "Marketing language: '%s'. Say what it does."
+level: error
+ignorecase: true
+tokens:
+  - seamless(ly)?
+  - effortless(ly)?
+  - blazing(ly)? fast
+  - (cutting|bleeding)[- ]edge
+  - state[- ]of[- ]the[- ]art
+  - game[- ]chang(er|ing)
+  - (best|world)[- ]in[- ]class
+  - world[- ]class
+  - unparalleled
+  - revolutioniz(e|es|ing)
+  - supercharge(s|d)?
+  - (delve|dives?) (in|into)
+  - unlock(s|ing)? the (power|potential)
+  - harness(es|ing)? the (power|potential)
+  - empower(s|ing)?
+  - elevate(s|d)?
+  - streamlin(e|es|ed|ing)
+  # Anchored on a space or line start so the noun survives: "the
+  # highest-leverage knob" is mechanical advantage, not marketing.
+  # RE2 has no lookbehind, so this is the way to express it.
+  - (^|\s)leverag(e|es|ed|ing)
+  - utiliz(e|es|ed|ing)
+  - robust
+  - powerful
+  - comprehensive
+  - meticulous(ly)?
+  - (crucial|vital|pivotal)
+  - testament to
+  - (landscape|realm|tapestry|journey) of

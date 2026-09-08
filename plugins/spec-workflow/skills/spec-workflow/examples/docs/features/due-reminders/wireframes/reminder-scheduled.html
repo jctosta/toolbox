@@ -1,0 +1,38 @@
+<!-- covers S-01.1 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reminder scheduled — wireframe</title>
+<link rel="stylesheet" href="../../.wireframe.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/wired-elements@3.0.0-rc.6/+esm"></script>
+</head>
+<body>
+
+<h1>Reminder scheduled</h1>
+<p class="who">Owner or Collaborator</p>
+
+<wired-card>
+  <table>
+    <tr><th>Task</th><td>Send the quarterly numbers</td></tr>
+    <tr><th>Due</th><td>12 Sep 2026, 09:00</td></tr>
+    <tr><th>Reminder fires</th><td>12 Sep 2026, 08:00</td></tr>
+    <tr><th>Goes to</th><td>Task owner, on every channel they have not muted</td></tr>
+  </table>
+  <p class="note">One reminder per task (INV-01). Completing the task or clearing the due
+     time cancels it.</p>
+
+  <div class="row">
+    <wired-button>Back to the list</wired-button>
+    <a href="due-date-form.html">Change the due time</a>
+  </div>
+</wired-card>
+
+<nav class="nav">
+  <a href="due-date-form.html">Set a due time</a>
+  <a href="delivery-status.html">Delivery status</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "quality-gate",
+  "description": "Guided qlty setup: assess a project, choose the checks that matter, and enforce them as a quality gate in CI, git hooks and agent instructions",
+  "author": {
+    "name": "Carlos Tosta",
+    "url": "https://github.com/jctosta"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jctosta/toolbox",
+  "repository": "https://github.com/jctosta/toolbox",
+  "keywords": ["quality", "linting", "qlty", "static-analysis", "ci"]
+}

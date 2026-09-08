@@ -1,0 +1,154 @@
+# .qlty/qlty.toml
+#
+# Starting point for the apply phase. Delete what does not apply; keep the
+# comments that explain a decision. Someone reading this file alone should be
+# able to tell why each plugin is here. The full argument lives in
+# docs/quality/policy.md.
+#
+# Reference: https://docs.qlty.sh/cli/qlty-toml
+
+config_version = "0"
+
+# Files no check should ever look at. qlty already honours .gitignore, so this
+# is for tracked files that are generated, vendored or otherwise not ours.
+# Deliberately short: `qlty init` generates a much longer boilerplate list that
+# also excludes **/config/**, **/db/**, **/templates/** and **/assets/**, which
+# is often more than a project meant to skip. Add what this repo actually needs.
+exclude_patterns = [
+  "**/node_modules/**",
+  "**/vendor/**",
+  "**/*.min.js",
+  "**/generated/**",
+]
+
+# Which files are tests. Smells and metrics treat these differently; without
+# this, duplication findings across test fixtures will dominate the report.
+test_patterns = [
+  "**/test/**",
+  "**/tests/**",
+  "**/spec/**",
+  "**/*_test.*",
+  "**/*_spec.*",
+]
+
+[[source]]
+name = "default"
+default = true
+
+# --- plugins --------------------------------------------------------------
+# One block per tool. Pin `version` when reproducibility matters more than
+# staying current. Set `config_files` whenever the repo already configures the
+# tool, so qlty runs the team's rules instead of its own defaults.
+
+# Secrets: near-zero false positives, high cost of a miss.
+[[plugin]]
+name = "gitleaks"
+
+# Dependency CVEs. Expect this to go red without anyone touching the code;
+# decide who handles that before switching it on.
+[[plugin]]
+name = "osv-scanner"
+
+# Example: adopting an existing config rather than shadowing it. `drivers`
+# picks which halves of a dual-purpose tool run — qlty init enables ruff as
+# lint-only, so add "format" deliberately and drop black if you do.
+# [[plugin]]
+# name = "ruff"
+# drivers = ["lint"]
+# config_files = ["pyproject.toml"]
+
+# A plugin's mode does NOT decide whether it blocks. `block`, `comment` and
+# `monitor` are Qlty Cloud presentation semantics and are indistinguishable to
+# the CLI gate. Only `mode = "disabled"` does anything here - it turns the
+# plugin off. What blocks is `--fail-level` plus the `--filter` list on the
+# gate command; see docs/quality/policy.md for both.
+
+# Example: a check worth running but never worth failing a build over. Leave it
+# out of the gate's --filter and give it its own reporting command.
+# [[plugin]]
+# name = "radarlint-python"
+
+# Example: turning a plugin off outright - the one mode the CLI acts on.
+# [[plugin]]
+# name = "ripgrep"
+# mode = "disabled"
+
+# Example: a scanner too slow for a commit hook, so it only runs in CI.
+# [[plugin]]
+# name = "trivy"
+# triggers = ["build"]
+
+# Example: monorepo, one sub-project treated differently.
+# [[plugin]]
+# name = "eslint"
+# prefix = "apps/web"
+
+# --- maintainability ------------------------------------------------------
+# These never fail a build. Smells do not reach `qlty check` at any mode - they
+# are reported by `qlty smells` only, which always exits 0. Treat them as a
+# report you read, not a rule you enforce.
+#
+# Each threshold below is qlty's default; change one only with a reason drawn
+# from the code. To turn a check off, write `enabled = false` - there is no
+# per-smell `mode`, and writing one is silently ignored while `qlty config
+# validate` still exits 0.
+
+[smells]
+mode = "monitor"
+
+# The most useful check here. 20-25 is defensible for parsers and state machines.
+[smells.function_complexity]
+threshold = 15
+
+[smells.file_complexity]
+threshold = 50
+
+# Raise to 6-8 for languages without keyword arguments.
+[smells.function_parameters]
+threshold = 5
+
+[smells.nested_control_flow]
+threshold = 5
+
+# Guard-clause style blows past this legitimately. Raise it well past 6 or turn
+# it off; do not leave it firing on code you consider correct.
+[smells.return_statements]
+threshold = 6
+
+[smells.boolean_logic]
+threshold = 5
+
+# Duplication needs tuning before it is useful: out of the box it fires on
+# imports, DTOs and exhaustive switches. Per-language filters below.
+[smells.identical_code]
+threshold = 12
+
+[smells.similar_code]
+threshold = 12
+
+# Example: teach duplication to ignore import blocks in one language.
+# [language.rust.smells]
+# duplication.filter_patterns = ["(use_declaration _)"]
+# duplication.nodes_threshold = 40
+
+# Example: a per-language threshold, because only one language is the problem.
+# [language.go.smells]
+# function_parameters.threshold = 7
+
+# --- suppressions ---------------------------------------------------------
+# Reach for the narrowest instrument: exclude_patterns for files nothing should
+# analyse, [[exclude]] for one plugin over one path, [[triage]] for one rule.
+# Every silencing block needs a comment saying why. An unexplained suppression
+# is indistinguishable from hiding a problem.
+
+# Example: fixtures deliberately contain malformed payloads, which bandit reads
+# as unsafe deserialization.
+# [[triage]]
+# match.plugins = ["bandit"]
+# match.file_patterns = ["tests/fixtures/**"]
+# set.ignored = true
+
+# Example: downgrade rather than silence, where the rule is right but not urgent.
+# [[triage]]
+# match.rules = ["eslint:react/prop-types"]
+# set.level = "low"

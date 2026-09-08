@@ -1,0 +1,6 @@
+extends: occurrence
+message: "Paragraph runs over 6 sentences. Split it."
+level: warning
+scope: paragraph
+max: 6
+token: '[.!?](?:\s|$)'

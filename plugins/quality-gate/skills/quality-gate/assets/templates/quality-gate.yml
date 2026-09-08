@@ -1,0 +1,100 @@
+# .github/workflows/quality-gate.yml
+#
+# Two jobs, deliberately:
+#   gate   - runs on pull requests over changed files only, and blocks
+#   full   - runs on main and nightly over everything, and reports
+#
+# Adapt the commands to the ones in docs/quality/policy.md. They must match the
+# policy string exactly, so that CI and a developer's terminal agree.
+
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  gate:
+    name: quality gate
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # --upstream needs a merge base; a shallow clone has none.
+          fetch-depth: 0
+
+      # Without this every run re-downloads every tool qlty drives.
+      - name: Cache the qlty toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.qlty
+          key: qlty-${{ runner.os }}-${{ hashFiles('.qlty/qlty.toml') }}
+          restore-keys: qlty-${{ runner.os }}-
+
+      - name: Install qlty
+        run: |
+          curl https://qlty.sh | sh
+          echo "$HOME/.qlty/bin" >> "$GITHUB_PATH"
+
+      # Populate the cache even when the gate fails, so the next run is fast.
+      - name: Install the linters
+        run: qlty check --install-only
+
+      # The gate. Never `|| true` and never continue-on-error - the exit code is
+      # the whole point. qlty check exits 1 on anything at or above --fail-level,
+      # and 99 when the command itself is wrong (usually an --upstream ref that
+      # does not resolve) - which is why fetch-depth: 0 above is not optional.
+      #
+      # --filter lists the plugins allowed to fail this build, and it is the ONLY
+      # thing that decides that: a plugin's mode does not, and --fail-level is
+      # global. Keep this list identical to the "may block" row in
+      # docs/quality/policy.md. Replace it with the plugins that policy names.
+      - name: Check changed files
+        run: >
+          qlty check
+          --upstream origin/${{ github.base_ref }}
+          --fail-level=medium
+          --filter=gitleaks,osv-scanner,ruff
+
+      # Everything not in the gate. Reports into the log, never fails the build.
+      # Drop this step if the policy puts every enabled plugin in the gate.
+      - name: Report (non-blocking)
+        run: >
+          qlty check
+          --upstream origin/${{ github.base_ref }}
+          --no-fail
+          --filter=radarlint-python
+
+  full:
+    name: full scan
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache the qlty toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.qlty
+          key: qlty-${{ runner.os }}-${{ hashFiles('.qlty/qlty.toml') }}
+          restore-keys: qlty-${{ runner.os }}-
+
+      - name: Install qlty
+        run: |
+          curl https://qlty.sh | sh
+          echo "$HOME/.qlty/bin" >> "$GITHUB_PATH"
+
+      # Reports the whole picture without blocking. This is the number the
+      # Baseline section in docs/quality/policy.md is compared against.
+      # smells and metrics always exit 0; only check has a meaningful status.
+      - name: Scan everything
+        run: |
+          qlty check --all --no-fail --summary
+          qlty smells --all --quiet
+          qlty metrics --all --sort complexity --limit 20 --exclude-tests

@@ -1,0 +1,42 @@
+<!-- covers S-NN.1, S-NN.2 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>[Screen name] — wireframe</title>
+<link rel="stylesheet" href="../../.wireframe.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/wired-elements@3.0.0-rc.6/+esm"></script>
+</head>
+<body>
+
+<h1>[Screen name]</h1>
+<p class="who">[Actor]</p>
+
+<wired-card>
+  <label class="field">
+    <span class="label">[Field label, in domain.md vocabulary]</span>
+    <wired-input placeholder="[example value]"></wired-input>
+    <span class="hint">[constraint the spec states, if any]</span>
+  </label>
+
+  <div class="row">
+    <wired-button>[Primary action]</wired-button>
+    <a href="other-screen.html">[Secondary action]</a>
+  </div>
+</wired-card>
+
+<!-- One block per alternative/exception state of THIS screen. Drop the block if
+     the state gets its own [screen]--[state].html file instead — either way the
+     covers comment at the top must name the scenario. -->
+<div class="state">
+  <span class="label">S-NN.2 — [state name]</span>
+  <p>[what the actor sees instead, phrased as the THEN lines of that scenario]</p>
+</div>
+
+<nav class="nav">
+  <a href="other-screen.html">[Other screen in this flow]</a>
+</nav>
+
+</body>
+</html>

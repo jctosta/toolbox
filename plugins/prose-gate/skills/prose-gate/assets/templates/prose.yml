@@ -1,0 +1,50 @@
+name: prose
+
+# CI is the backstop, not the main surface. The editing hook reaches the writer
+# while the text is still in front of them; this catches whatever got past it.
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '**/*.txt'
+      - '**/*.adoc'
+      - '**/*.rst'
+      - '.vale.ini'
+      - 'styles/**'
+
+jobs:
+  vale:
+    name: prose gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # vale-action reports on added lines, which needs the base commit.
+          fetch-depth: 0
+
+      # Pin the version. The style ships regex tokens that a future release
+      # could read differently, and an unpinned linter turns a build red with
+      # no commit to blame.
+      - name: Lint prose
+        uses: errata-ai/vale-action@reviewdog
+        with:
+          version: 3.13.0
+          reporter: github-pr-review
+          # Only the lines this pull request added. Existing prose is not this
+          # job's problem - there is no flag-day cleanup to force.
+          filter_mode: added
+          fail_on_error: true
+
+# The plain-command alternative, for a repo that already sits at zero errors.
+# Simpler, no action to trust, and the exit code is the whole point. Never
+# `|| true` and never continue-on-error - swallowing the exit code leaves a
+# job that reports success while the gate does nothing.
+#
+#      - name: Install Vale
+#        run: |
+#          curl -sSL https://github.com/errata-ai/vale/releases/download/v3.13.0/vale_3.13.0_Linux_64-bit.tar.gz \
+#            | sudo tar -xz -C /usr/local/bin vale
+#      - name: Lint prose
+#        run: vale --minAlertLevel=error .

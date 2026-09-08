@@ -1,0 +1,126 @@
+/* Shared wireframe stylesheet for spec-workflow screens.
+   Copy to docs/features/.wireframe.css; every screen links it as ../../.wireframe.css.
+
+   Rules this file exists to enforce (X-02): grayscale only, one system font,
+   no shadows, no border radius, images as crossed boxes. If a screen needs a
+   colour to make its point, the point belongs in spec.md, not in a wireframe. */
+
+:root {
+  --ink: #1a1a1a;
+  --muted: #6b6b6b;
+  --rule: #9a9a9a;
+  --paper: #ffffff;
+  --wash: #f0f0f0;
+}
+
+body {
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  max-width: 760px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1 { font-size: 20px; margin: 0 0 2px; }
+h2 { font-size: 16px; margin: 28px 0 8px; }
+p  { margin: 8px 0; }
+a  { color: var(--ink); }
+
+/* Screen chrome ---------------------------------------------------------- */
+
+.who {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nav {
+  margin: 32px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+}
+.nav a { margin-right: 14px; }
+
+/* A visible alternative/exception state of this same screen. */
+.state {
+  margin: 18px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: var(--wash);
+}
+.state > .label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* Content ----------------------------------------------------------------- */
+
+.field { display: block; margin: 14px 0; }
+.field > .label { display: block; margin-bottom: 4px; font-size: 13px; }
+.field > .hint { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.note { color: var(--muted); font-size: 13px; }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 10px 0; }
+th, td { border-bottom: 1px solid var(--rule); padding: 6px 8px; text-align: left; }
+th { font-weight: 600; color: var(--muted); }
+
+/* Image placeholder: a crossed box, never a real picture. */
+.placeholder {
+  display: block;
+  min-height: 120px;
+  border: 1px solid var(--rule);
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1px), var(--rule) 50%, transparent calc(50% + 1px)),
+    linear-gradient(to bottom right, transparent calc(50% - 1px), var(--rule) 50%, transparent calc(50% + 1px));
+}
+
+/* Offline fallback (S-01.2) ----------------------------------------------
+   :not(:defined) only ever matches custom elements that never got upgraded,
+   so when the CDN is unreachable the screen still reads as a form. */
+
+wired-input:not(:defined),
+wired-textarea:not(:defined),
+wired-combo:not(:defined),
+wired-search-input:not(:defined) {
+  display: block;
+  min-height: 1.9em;
+  padding: 4px 6px;
+  border: 1px solid var(--rule);
+}
+wired-input:not(:defined)::after,
+wired-textarea:not(:defined)::after {
+  content: attr(placeholder);
+  color: var(--muted);
+}
+wired-button:not(:defined),
+wired-fab:not(:defined),
+wired-icon-button:not(:defined) {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--ink);
+}
+wired-card:not(:defined),
+wired-dialog:not(:defined) {
+  display: block;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+}
+wired-checkbox:not(:defined)::before,
+wired-radio:not(:defined)::before { content: "[ ] "; }
+wired-divider:not(:defined) { display: block; border-top: 1px solid var(--rule); }
+wired-item:not(:defined), wired-listbox:not(:defined) { display: block; }
+wired-link:not(:defined) { text-decoration: underline; }
+wired-progress:not(:defined),
+wired-slider:not(:defined) {
+  display: block;
+  height: 1em;
+  border: 1px solid var(--rule);
+}

@@ -1,0 +1,18 @@
+extends: existence
+message: "Preamble: '%s'. Delete it and start with the answer."
+level: error
+ignorecase: true
+nonword: false
+tokens:
+  - (great|good|excellent) (question|point)
+  - happy to help
+  - (i'd|i would) be happy to
+  - let's (dive|jump) (in|into)
+  - let's (take a look|get started|begin)
+  - before we (begin|start|dive)
+  - in this (article|guide|section|document|post), (we|i) (will|'ll)
+  - here's (a breakdown|what i found|what's going on)
+  - first, let me
+  - to answer your question
+  - sure thing
+  - (certainly|absolutely|of course)[!,]

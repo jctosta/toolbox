@@ -1,0 +1,12 @@
+extends: existence
+message: "Rhetorical question: '%s'. Answer it in a statement."
+level: error
+ignorecase: true
+nonword: true
+# Scoped to headings, which is what the rule is actually for. Unscoped it
+# fires on any question in running text or a table cell - including a
+# question-and-answer table, where the question is genuinely answered.
+scope: heading
+tokens:
+  - '(?:Why|What|How) (?:does|do|is|are) (?:this|that|it|these|they)[^.!?\n]{0,40}\?'
+  - '\bSo what(?:''s| is)? (?:the |this )?(?:mean|matter|point)[^.!?\n]{0,20}\?'

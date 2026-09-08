@@ -1,0 +1,14 @@
+{
+  "vale": {
+    "command": "vale-ls",
+    "extensionToLanguage": {
+      ".md": "markdown",
+      ".mdx": "markdown",
+      ".txt": "plaintext",
+      ".adoc": "asciidoc",
+      ".rst": "restructuredtext"
+    },
+    "restartOnCrash": false,
+    "startupTimeout": 5000
+  }
+}
