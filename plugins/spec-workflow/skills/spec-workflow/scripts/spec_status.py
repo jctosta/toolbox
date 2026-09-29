@@ -106,6 +106,7 @@ def feature_status(folder: Path, forbidden: list, tests_dir: Path | None = None,
     a = {x.name: x for x in st.artifacts}
     brief, spec, design, tests = a["brief.md"], a["spec.md"], a["design.md"], a["tests.md"]
     needs_design = st.rigor == "full"
+    per_slice = meta["tests.md"].get("skeletons", "") == "per-slice"
 
     def decide(phase: str, nxt: str, who: str) -> None:
         st.phase, st.next, st.who = phase, nxt, who
@@ -151,6 +152,8 @@ def feature_status(folder: Path, forbidden: list, tests_dir: Path | None = None,
         decide("test-spec", f"`spec-workflow:test-spec {st.slug}`", "agent")
     elif tests.status in ("", "draft"):
         decide("test-spec — awaiting review", "review tests.md; set the `status` row to `approved`", "human")
+    elif per_slice and tests.status in ("approved", "skeletons-red"):
+        decide("implementation", f"`spec-workflow:handoff {st.slug}` if tickets don't exist yet; otherwise `/implement` the next unblocked ticket", "agent")
     elif tests.status == "approved":
         decide("test-spec — skeletons", f"write failing test skeletons, set tests.md `status` to `skeletons-red` (`spec-workflow:test-spec {st.slug} skeletons`)", "agent")
     elif tests.status == "skeletons-red":
@@ -158,7 +161,7 @@ def feature_status(folder: Path, forbidden: list, tests_dir: Path | None = None,
             st.notes.append(f"{st.scenarios - st.scenarios_in_code} scenario(s) have no marker in {tests_dir}")
         decide("implementation", f"`spec-workflow:handoff {st.slug}` if tasks don't exist yet; otherwise pick up the next Backlog.md task", "agent")
     elif tests.status == "green":
-        decide("done — not marked", "set brief.md `status` to `shipped` and close the parent task", "either")
+        decide("done — not marked", "set brief.md `status` to `shipped`" + ("" if per_slice else " and close the parent task"), "either")
     else:
         decide("unknown", f"tests.md status '{tests.status}' not recognised", "human")
 

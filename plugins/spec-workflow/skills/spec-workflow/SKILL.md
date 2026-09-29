@@ -1,6 +1,6 @@
 ---
 name: spec-workflow
-description: Spec-first development workflow that produces validated artifacts (product definition, feature brief, behavioral spec with use-case flows, sequence-diagram design, test specification) BEFORE code, then hands off to Backlog.md tasks. Use whenever the user wants to define a new application or product, list or prioritize features, explore or refine a feature idea, write requirements, use cases, scenarios or acceptance criteria, sketch wireframes or screens for a feature, draw sequence diagrams, derive a test plan from a spec, check spec quality or traceability, apply review comments, or says "define the app", "explore this", "refine", "spec this out", "test spec", "apply feedback", "run spec lint". Also trigger when a repo has docs/product/ or docs/features/, and before implementing any non-trivial feature even if "spec" is never said. Sub-commands dispatch directly — status, define-app, explore, refine, wireframe, design, test-spec, feedback, handoff, lint, site.
+description: Spec-first development workflow that produces validated artifacts (product definition, feature brief, behavioral spec with use-case flows, sequence-diagram design, test specification) BEFORE code, then hands off to Backlog.md tasks. Use whenever the user wants to define a new application or product, list or prioritize features, explore or refine a feature idea, write requirements, use cases, scenarios or acceptance criteria, sketch wireframes or screens for a feature, draw sequence diagrams, derive a test plan from a spec, check spec quality or traceability, apply review comments, or says "define the app", "explore this", "refine", "spec this out", "test spec", "apply feedback", "run spec lint". Also trigger when a repo has docs/product/ or docs/features/, and before implementing any non-trivial feature even if "spec" is never said. Sub-commands dispatch directly — status, define-app, explore, refine, wireframe, design, test-spec, feedback, handoff, lint, site, embrace-the-grill.
 metadata:
   argument-hint: "<phase> [feature-slug]"
 ---
@@ -34,7 +34,7 @@ Two ways to reach a phase:
    - `spec-workflow:explore due-reminders` or `spec-workflow explore` written in the message
    - `explore due-reminders` alone when this skill is already loaded and the word is a phase name
 
-   Grammar: `<phase> [slug] [free text]`. Phases: `status`, `define-app`, `explore`, `refine`, `wireframe`, `design`, `test-spec`, `feedback`, `handoff`, `lint`, `site`. The slug is optional for `status`, `define-app`, `lint` and `site`; for the others, if it's missing and only one feature folder exists, use it; if several exist, list them and ask. Free text after the slug is the phase's input (the idea, the ticket reference, a specific instruction).
+   Grammar: `<phase> [slug] [free text]`. Phases: `status`, `define-app`, `explore`, `refine`, `wireframe`, `design`, `test-spec`, `feedback`, `handoff`, `lint`, `site`, `embrace-the-grill`. The slug is optional for `status`, `define-app`, `lint`, `site` and `embrace-the-grill`; for the others, if it's missing and only one feature folder exists, use it; if several exist, list them and ask. Free text after the slug is the phase's input (the idea, the ticket reference, a specific instruction).
 
    `status [slug]` runs `scripts/spec_status.py` and reports where things stand and what comes next (see `references/status.md`). `lint [slug]` runs `scripts/spec_lint.py` and reports. `site` starts `scripts/spec_site.py docs` and prints the URL (run it in the background so the session continues).
 
@@ -59,6 +59,7 @@ Each phase is one invocation: read its inputs, produce exactly one artifact, run
 | handoff | "create tasks", "break it down" | tests.md, design.md | Backlog.md tasks | `references/backlog-integration.md` |
 | lint | "check the specs", "is it consistent" | feature folder | lint report | (SKILL.md, Lint) |
 | site | "open the review site", "render the specs" | docs/ | local URL | (SKILL.md, Review site) |
+| embrace-the-grill | "use Matt's skills", "upgrade to mattpocock-skills" | docs/ (existing) | `CONTEXT.md`, updated domain.md, tests.md and AGENTS.md | `references/embrace-the-grill.md` |
 
 Read only the reference file for the phase you're running. If the phase's input artifact doesn't exist or hasn't passed its gate, say so and offer to run the earlier phase — don't fabricate the missing input from conversation.
 
@@ -113,6 +114,10 @@ When `docs/product/` doesn't exist:
 2. Create `docs/features/` and copy `scripts/spec_lint.py` to `scripts/spec_lint.py` in the repo (or reference it from the skill path in CI).
 3. Append `references/agents-snippet.md` to the repo's `AGENTS.md` so sessions without this skill loaded still follow the conventions.
 4. If Backlog.md is used, run its init per the backlog-workflow skill; the two skills are designed to compose — this one owns the feature level, backlog-workflow owns the task level.
+
+## mattpocock-skills mode
+
+When the model-invoked skills `grilling`, `domain-modeling` and `tdd` from [mattpocock-skills](https://github.com/mattpocock/skills) are available, also read `references/mattpocock.md` for every phase; it wins where it differs from the phase reference. This skill then owns the feature through an approved `tests.md`, and Matt Pocock's `/implement` builds each ticket. When those skills are not available, ignore that file. A repo that already uses this skill switches with `embrace-the-grill`.
 
 ## Status
 

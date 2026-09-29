@@ -447,6 +447,37 @@ with tempfile.TemporaryDirectory() as td:
               shipped("shipped-without-design", lambda f: (f / "design.md").unlink()),
               None, forbidden).errors))
 
+    # mattpocock-skills mode: tdd writes each test in its slice, so there is no skeleton step.
+    def approved_tests(name: str, skeletons: str, status: str = "approved") -> Path:
+        f = base / name
+        shutil.copytree(FEATURE, f)
+        tm = f / "tests.md"
+        tm.write_text(tm.read_text(encoding="utf-8")
+                      .replace("| status | skeletons-red |", f"| status | {status} |", 1)
+                      .replace("| skeletons | up-front |", f"| skeletons | {skeletons} |", 1),
+                      encoding="utf-8")
+        return f
+
+    per_slice = spec_status.feature_status(approved_tests("per-slice", "per-slice"), forbidden)
+    check("skeletons: per-slice goes to implementation",
+          per_slice.phase == "implementation" and "/implement" in per_slice.next,
+          f"{per_slice.phase} / {per_slice.next}")
+    check("skeletons: up-front still waits for skeletons",
+          phase(approved_tests("up-front", "up-front")) == "test-spec — skeletons")
+    red = spec_status.feature_status(approved_tests("per-slice-red", "per-slice", "skeletons-red"), forbidden)
+    check("skeletons: per-slice never points at Backlog.md tasks",
+          red.phase == "implementation" and "/implement" in red.next, f"{red.phase} / {red.next}")
+    done = spec_status.feature_status(approved_tests("per-slice-green", "per-slice", "green"), forbidden)
+    check("skeletons: per-slice done has no parent task to close",
+          done.phase == "done — not marked" and "parent task" not in done.next, done.next)
+    check("skeletons: an unknown value is a lint error, not a silent fallback",
+          any("skeletons" in e for e in spec_lint.lint_feature(
+              approved_tests("per-slice-cased", "Per-slice"), None, forbidden).errors))
+    no_spec = approved_tests("per-slice-no-spec", "Per-slice")
+    (no_spec / "spec.md").unlink()
+    check("skeletons: the value is checked even without spec.md",
+          any("skeletons" in e for e in spec_lint.lint_feature(no_spec, None, forbidden).errors))
+
 print("9. manifests and skills conform to Agent Plugins 1.0.0")
 AGENT_PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 MANIFEST_FIELDS = {"$schema", "name", "version", "description", "author",
@@ -858,6 +889,20 @@ for plugin, phases in PHASES.items():
         if reference.exists():
             check(f"{plugin} phase {phase}: its reference ends with a gate",
                   "## Gate" in reference.read_text(encoding="utf-8"))
+
+sw_grammar = re.search(r"Phases: (.+?)\. The slug", (SKILL / "SKILL.md").read_text(encoding="utf-8"))
+sw_phases = sorted(re.findall(r"`([a-z0-9-]+)`", sw_grammar.group(1))) if sw_grammar else []
+sw_commands = sorted(p.stem for p in (REPO / "plugins/spec-workflow/commands").glob("*.md"))
+check("spec-workflow: the phase list parses", bool(sw_phases))
+check("spec-workflow: one command per phase, no strays", sw_phases == sw_commands,
+      f"phases {sw_phases} vs commands {sw_commands}")
+sw_refs = sorted(set(re.findall(r"`(references/[^`]+\.md)`", (SKILL / "SKILL.md").read_text(encoding="utf-8"))))
+check("spec-workflow: every reference SKILL.md points at exists",
+      bool(sw_refs) and all((SKILL / r).exists() for r in sw_refs),
+      ", ".join(r for r in sw_refs if not (SKILL / r).exists()))
+grill = SKILL / "references/embrace-the-grill.md"
+check("spec-workflow: embrace-the-grill is a phase with a gated reference",
+      "embrace-the-grill" in sw_phases and grill.exists() and "## Gate" in grill.read_text(encoding="utf-8"))
 
 
 print("11. prose-gate lints prose without eating punctuation")
