@@ -73,7 +73,8 @@ flowchart LR
 - `tests.md` sets `skeletons | per-slice`, so `tdd` writes each test inside its ticket.
 - Tickets are tracer-bullet slices published through `docs/agents/issue-tracker.md`. Run
   `/setup-matt-pocock-skills` first.
-- A repo already using spec-workflow switches with `/spec-workflow:embrace-the-grill` after setup.
+- A repo already using spec-workflow runs `/setup-matt-pocock-skills` (choose the `CONTEXT.md` layout for
+  domain docs), then `/spec-workflow:embrace-the-grill`.
 
 ## Install (Oh My Pi)
 

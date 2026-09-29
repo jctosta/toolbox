@@ -8,7 +8,7 @@ In this mode spec-workflow owns the feature up to an approved `tests.md`, and Ma
 
 - Where this file says to use `grilling`, `domain-modeling`, `codebase-design` or `prototype`, call the Skill tool with that name. Without the call the phase falls back to its own reference.
 - If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-matt-pocock-skills`. `/implement` and `code-review` resolve tickets through it. The phase continues; handoff has its own fallback.
-- When bootstrapping, append the block below the `---` in `references/agents-snippet.md` to the file `/setup-matt-pocock-skills` edits: `CLAUDE.md` if it exists, else `AGENTS.md`. If neither exists, ask the user which to create.
+- When bootstrapping, append the block below the `---` in `references/agents-snippet.md` to the file `/setup-matt-pocock-skills` edits: `CLAUDE.md` if it exists, else `AGENTS.md`. If neither exists, ask the user which to create. Drop "glossary" from the block's `docs/product/` bullet.
 - If `docs/product/domain.md` still holds a glossary table, the repo predates this mode: offer `spec-workflow:embrace-the-grill` before running the phase.
 - Write `spec-workflow:handoff` in full. A bare `/handoff` is Matt's context-transfer skill.
 - Read the glossary and ADRs the way `docs/agents/domain.md` says: root `CONTEXT.md`, or the relevant context's `CONTEXT.md` from `CONTEXT-MAP.md`, plus the matching `docs/adr/`. Write new terms and ADRs to that same context, and use its terms verbatim.

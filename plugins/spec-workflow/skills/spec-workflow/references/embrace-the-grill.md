@@ -9,7 +9,10 @@ Every step sets state rather than appending: an identical term, row or line alre
 - The model-invoked skills `grilling`, `domain-modeling` and `tdd` from mattpocock-skills. If they aren't available, stop and ask the user to install mattpocock-skills.
 - `docs/product/domain.md`. If `docs/product/` doesn't exist there is nothing to upgrade: run `define-app`, which follows mattpocock.md from the start.
 - `docs/agents/issue-tracker.md` and `docs/agents/domain.md`. If either is missing, stop and ask the user to run `/setup-matt-pocock-skills` first. A skill can't call it, and every later step reads what it configures.
-- `python scripts/spec_status.py docs --json` for the feature inventory.
+- `docs/agents/domain.md` must describe the `CONTEXT.md` layout. Setup can point it at domain.md's existing glossary instead; if so, show the user and, with their consent, rewrite it to setup's default layout before any other step.
+- The scripts. If the repo vendors `scripts/spec_lint.py` and it differs from the skill's copy, offer to replace it. Otherwise run the skill's own `scripts/`.
+- A baseline, taken before any edit: `spec_lint.py docs/features` errors and `npx -y @probelabs/maid docs/product/domain.md` output. The gate compares against it, with the same lint copy.
+- `spec_status.py docs --json` for the feature inventory.
 
 ## Method
 
@@ -18,6 +21,8 @@ Every step sets state rather than appending: an identical term, row or line alre
    - Words in Notes that name the same concept ("not "todo" in code") go to `_Avoid_:`.
    - A note that separates two concepts ("not "notification"; that is the delivered message") goes under `## Flagged ambiguities`.
    - A default or a rule ("default 1 hour", "skipped, never failed") is not vocabulary. Keep it in domain.md under the entity it describes, or as an `INV-NN`; ask the user when unsure.
+   - A cell can mix kinds ("Not X. Rule…"); split it sentence by sentence.
+   - A definition that names implementation (tools, file formats, storage) is rewritten to say what the thing is. Show the user each rewrite beside the original.
 
    If a `CONTEXT.md` already defines a term differently, ask the user which definition wins and leave that row in domain.md until they answer. Replace the Glossary table with `See CONTEXT.md.` (`See CONTEXT-MAP.md.` when the map exists) only once every row has moved. Entities, lifecycles and invariants stay in domain.md.
 
@@ -33,19 +38,19 @@ Every step sets state rather than appending: an identical term, row or line alre
 
 3. **Decisions.** Read the `D-NN` entries in every design.md. List the ones that are hard to reverse, surprising without context and the result of a real trade-off as ADR candidates. Write an ADR through `domain-modeling` only for the ones the user picks, and link each D-NN to its ADR.
 
-4. **Instructions.** Work in the file `/setup-matt-pocock-skills` edits: `CLAUDE.md` if it exists, else `AGENTS.md`; if neither exists, ask the user which to create. Add the mattpocock-skills line from `references/agents-snippet.md` verbatim to its `## Spec-first workflow` block. If the block is only in the other file, ask the user whether to move it next to Matt's `## Agent skills` block. If there is no block, append the block below the `---` in agents-snippet.md.
+4. **Instructions.** Work in the file `/setup-matt-pocock-skills` edits: `CLAUDE.md` if it exists, else `AGENTS.md`; if neither exists, ask the user which to create. Add the mattpocock-skills line from `references/agents-snippet.md` verbatim to its `## Spec-first workflow` block, and drop "glossary" from the block's `docs/product/` bullet. If the block is only in the other file, ask the user whether to move it next to Matt's `## Agent skills` block. If there is no block, append the block below the `---` in agents-snippet.md.
 
-5. **Check.** Run `python scripts/spec_lint.py docs/features` (with `--tests-dir <dir>` when the repo has tests), `python scripts/spec_status.py docs` and `npx -y @probelabs/maid docs/product/domain.md`. On per-slice features, a missing marker is expected for a T-ID whose ticket isn't done, and a real gap for one whose ticket is. Say which is which.
+5. **Check.** Run `spec_lint.py docs/features` (with `--tests-dir <dir>` when the repo has tests), `spec_status.py docs` and `npx -y @probelabs/maid docs/product/domain.md`, and compare lint and maid with the baseline. On per-slice features, a missing marker is expected for a T-ID whose ticket isn't done, and a real gap for one whose ticket is. Say which is which.
 
 ## Gate
 
-- [ ] `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist.
+- [ ] `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, and the latter describes the `CONTEXT.md` layout.
 - [ ] Every term from the old glossary is in exactly one `CONTEXT.md`; every conflict and unclear context was decided by the user.
 - [ ] Every default or rule from the Notes column is still in domain.md.
-- [ ] domain.md's Glossary section reads `See CONTEXT.md.` or `See CONTEXT-MAP.md.`, and its diagrams still parse.
+- [ ] domain.md's Glossary section reads `See CONTEXT.md.` or `See CONTEXT-MAP.md.`, and maid reports no diagram error the baseline didn't have.
 - [ ] Every feature at `test-spec — awaiting review` or `test-spec — skeletons` has one `skeletons` row, and every feature at `implementation` has one (`up-front`, or `per-slice` from a previous run).
 - [ ] ADR candidates were listed; ADRs exist only for the ones the user picked.
-- [ ] The spec-first block carries the mattpocock-skills line exactly once.
-- [ ] Lint reports no new errors, and no feature's status phase moved backwards.
+- [ ] The spec-first block carries the mattpocock-skills line exactly once, and its `docs/product/` bullet no longer lists the glossary.
+- [ ] Lint reports no error the baseline didn't have, and no feature's status phase moved backwards.
 
-Then stop. In the review message: terms moved and where, conflicts, each feature and the path it now follows, features skipped and why, ADR candidates, and the next step from status.
+Then stop. In the review message: terms moved and where, conflicts, definitions rewritten, terms used in definitions but not defined, each feature and the path it now follows, features skipped and why, ADR candidates, and the next step from status.
