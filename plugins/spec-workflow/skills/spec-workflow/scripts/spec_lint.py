@@ -665,6 +665,9 @@ def lint_feature(folder: Path, tests_dir: Path | None, forbidden: list[re.Patter
     else:
         rep.info.append("design.md: not written (ok for lite)")
     if tests.exists():
+        skeletons = parse_fields(tests.read_text(encoding="utf-8")).get("skeletons")
+        if skeletons is not None and skeletons not in ("up-front", "per-slice"):
+            rep.err("tests.md", None, f"skeletons must be 'up-front' or 'per-slice', not '{skeletons}'")
         if reqs:
             rows = lint_tests(tests, rep, reqs, xcuts)
     else:

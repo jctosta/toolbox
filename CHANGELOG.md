@@ -10,6 +10,8 @@ refine, an optional wireframe pass, design and test-spec before any code exists.
 - Traceability lint: every scenario ties to a test and to a code marker.
 - Local review site with comments round-tripping through `feedback.md`.
 - Handoff into Backlog.md tasks.
+- mattpocock-skills mode: grilling interviews, `CONTEXT.md` glossary, tracer-bullet tickets for `/implement`.
+- `embrace-the-grill` phase upgrades an existing spec-workflow repo to mattpocock-skills mode.
 - Mermaid diagrams validated by [maid](https://github.com/probelabs/maid) when installed.
 - Installs under [Oh My Pi](https://github.com/can1357/oh-my-pi) as well as Claude Code,
   via a root `plugin.json` declaring [Agent Plugins 1.0.0](https://agent-plugins.org).

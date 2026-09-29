@@ -6,6 +6,7 @@
 | status | draft \| approved \| skeletons-red \| green |
 | spec | ./spec.md |
 | design | ./design.md |
+| skeletons | up-front \| per-slice |
 | framework | <pytest \| vitest \| go test> |
 | marker convention | `<e.g. @pytest.mark.scenario("S-NN.M") + test_TNN_Ma_name>` |
 

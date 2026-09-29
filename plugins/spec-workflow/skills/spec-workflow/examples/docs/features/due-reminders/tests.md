@@ -6,6 +6,7 @@
 | status | skeletons-red |
 | spec | ./spec.md |
 | design | ./design.md |
+| skeletons | up-front |
 | framework | pytest |
 | marker convention | `@pytest.mark.scenario("S-NN.M") + test_TNN_Ma_<name>` |
 

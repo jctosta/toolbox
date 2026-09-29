@@ -33,6 +33,7 @@ Then either invoke the phase commands directly:
 /spec-workflow:handoff checkout-flow
 /spec-workflow:lint
 /spec-workflow:site
+/spec-workflow:embrace-the-grill
 ```
 
 ```shell
@@ -54,6 +55,25 @@ Then either invoke the phase commands directly:
 
 …or just talk ("spec this out", "where are we", "apply the review comments", "set up a quality gate",
 "what should we actually lint") — the skills route by intent too.
+
+### spec-workflow with mattpocock-skills
+
+When [mattpocock-skills](https://github.com/mattpocock/skills) is installed, spec-workflow runs the front
+of its main flow and hands implementation to `/implement`. Without it, nothing changes.
+
+```mermaid
+flowchart LR
+  A["define-app, explore<br>(grilling)"] --> B["refine + design<br>(for /to-spec)"]
+  B --> C["test-spec<br>matrix only"]
+  C --> D["spec-workflow:handoff<br>(for /to-tickets)"]
+  D --> E["/implement per ticket<br>tdd, code-review"]
+```
+
+- The glossary lives in `CONTEXT.md`; `domain.md` keeps lifecycles and invariants.
+- `tests.md` sets `skeletons | per-slice`, so `tdd` writes each test inside its ticket.
+- Tickets are tracer-bullet slices published through `docs/agents/issue-tracker.md`. Run
+  `/setup-matt-pocock-skills` first.
+- A repo already using spec-workflow switches with `/spec-workflow:embrace-the-grill` after setup.
 
 ## Install (Oh My Pi)
 

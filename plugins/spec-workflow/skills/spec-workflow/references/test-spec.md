@@ -35,7 +35,7 @@ Produces `docs/features/<slug>/tests.md` — the traceability matrix from scenar
 
 ## Writing tests.md
 
-Use `assets/templates/tests.md`. The table columns are fixed because the lint parses them: `Scenario | Test ID | Level | Fixture / setup | Asserts`.
+Use `assets/templates/tests.md`. The table columns are fixed because the lint parses them: `Scenario | Test ID | Level | Fixture / setup | Asserts`. Set the `skeletons` row to `up-front`; `per-slice` belongs to mattpocock-skills mode.
 
 ## Gate
 
