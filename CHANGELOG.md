@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### llama-slot-keeper (Pi extension)
+
+- Saves the main model's llama.cpp slot when a subagent tool starts and restores it when the tool returns.
+- Reloads the main model first when a router unloaded it for the subagent's model.
+- Deletes the session's slot files at session end when `PI_SLOT_KEEPER_DIR` is set.
+
 ### spec-workflow
 
 Spec-first workflow. Define the product, then take each feature through explore,
