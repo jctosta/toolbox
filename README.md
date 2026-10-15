@@ -10,6 +10,12 @@ Currently shipping:
 | `quality-gate` | Guided [qlty](https://qlty.sh) setup: profile the project, decide which checks and thresholds actually earn their noise, apply a tailored `.qlty/qlty.toml`, baseline existing debt without a flag-day cleanup, then enforce the gate in CI, git hooks and agent instructions — with the reasoning committed as `docs/quality/policy.md`. |
 | `prose-gate` | Guided [Vale](https://vale.sh) setup aimed at the prose agents write — preamble, self-narration, marketing adjectives, hedging, sign-offs. Profiles a repo, decides which rules earn their noise, then enforces them *while an agent writes* through a self-limiting PostToolUse hook, with CI as the backstop. |
 
+Pi extensions, in `extensions/pi/` (load them with Pi, not through the marketplace):
+
+| Extension | What it does |
+|---|---|
+| [`llama-slot-keeper`](extensions/pi/llama-slot-keeper/README.md) | Saves the main model's llama.cpp slot when a subagent starts and restores it when the subagent returns, so a router that swaps models does not make the main model read the whole conversation again. |
+
 ## Install (Claude Code)
 
 ```shell
@@ -153,6 +159,9 @@ plugins/
       assets/styles/Agentic/         # the 15 vendored rules this repo also lints itself with
       assets/testdata/               # fixture written to trip every rule
       scripts/                       # vale_advisor.py
+extensions/
+  pi/
+    llama-slot-keeper/               # Pi extension: index.ts + README.md
 .vale.ini                            # this repo lints its own prose with the shipped style
 tests/run_checks.py                  # CI entry point
 .github/workflows/ci.yml             # checks on every push/PR
