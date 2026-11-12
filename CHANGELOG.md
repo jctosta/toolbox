@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### pi-subagent
+
+- Runs [pi](https://pi.dev) one-shot in JSON mode and prints one JSON summary: answer, status, files touched, tool calls, usage and cost.
+- Tool presets: `readonly`, `full`, `none`, or a pi tool list.
+- `--keep-session` and `--session` send a follow-up into the same pi session.
+- Kills pi's process group at `--timeout`; keeps the raw event stream for debugging.
+- Model, thinking level and timeout default from `PI_SUBAGENT_*` environment variables.
+
 ### llama-slot-keeper (Pi extension)
 
 - Saves the main model's llama.cpp slot when a subagent tool starts and restores it when the tool returns.
