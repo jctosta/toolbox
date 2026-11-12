@@ -1,9 +1,0 @@
-{
-  "name": "pi-subagent",
-  "description": "Delegate small, well-scoped tasks to the pi coding agent running a cheap model and get a structured JSON result back, like any other subagent",
-  "author": {
-    "name": "Carlos Tosta",
-    "url": "https://github.com/jctosta"
-  },
-  "license": "MIT"
-}
