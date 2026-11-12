@@ -4,7 +4,7 @@
     "name": "Carlos Tosta",
     "url": "https://github.com/jctosta"
   },
-  "description": "Personal toolbox of Claude Code plugins: a spec-first development workflow, a qlty quality gate, and a Vale prose gate",
+  "description": "Personal toolbox of Claude Code plugins: a spec-first development workflow, a qlty quality gate, a Vale prose gate, and a pi subagent",
   "plugins": [
     {
       "name": "spec-workflow",
@@ -26,6 +26,13 @@
       "description": "Guided Vale setup aimed at the prose agents write \u2014 preamble, self-narration, marketing adjectives, hedging, sign-offs. Profiles a repo, decides which rules earn their noise, then enforces them while an agent writes rather than after the fact",
       "category": "development",
       "tags": ["prose", "vale", "documentation", "writing", "linting"]
+    },
+    {
+      "name": "pi-subagent",
+      "source": "./plugins/pi-subagent",
+      "description": "Delegate small, well-scoped tasks to the pi coding agent (pi.dev) on a cheap model and parse its JSON event stream into one result: final answer, files touched, tool calls, tokens and cost",
+      "category": "development",
+      "tags": ["pi", "subagent", "delegation", "agents"]
     }
   ]
 }

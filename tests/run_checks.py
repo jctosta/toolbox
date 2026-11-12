@@ -29,6 +29,9 @@ Checks:
 10. quality-gate's advisor profiles fixture repositories correctly, its verify
    catches a qlty.toml that is invalid or inconsistent with the repo, and the
    templates it ships stay parseable and complete.
+12. pi-subagent's wrapper turns a stub pi's JSON event stream into the
+   summary the skill documents: answer, files touched, failing tool calls,
+   usage, provider errors and timeouts.
 Exits non-zero on the first failure.
 """
 from __future__ import annotations
@@ -1240,6 +1243,87 @@ policy_pg = (PG_SKILL / "assets/templates/policy.md").read_text(encoding="utf-8"
 check("prose-gate: the policy template has a section per phase",
       all(h in policy_pg for h in
           ("## Prose profile", "## Policy", "## Applied", "## Enforcement")))
+
+print("12. pi-subagent summarizes pi's JSON event stream")
+PI_RUN = REPO / "plugins/pi-subagent/skills/pi-subagent/scripts/pi_run.py"
+# A stand-in for `pi --mode json`: emits the documented event shapes for a run
+# that edits a file, runs a failing command and answers; or fails on auth; or hangs.
+FAKE_PI = r'''#!/usr/bin/env python3
+import json, os, sys, time
+mode = os.environ.get("FAKE_PI_MODE", "ok")
+def out(o):
+    sys.stdout.write(json.dumps(o) + "\n"); sys.stdout.flush()
+usage = {"input": 100, "output": 10, "cacheRead": 0, "cacheWrite": 0, "totalTokens": 110,
+         "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0, "total": 0.001}}
+def assistant(content, stop, **extra):
+    out({"type": "message_end", "message": {"role": "assistant", "content": content,
+         "provider": "fake", "model": "m1", "usage": usage, "stopReason": stop, **extra}})
+out({"type": "session", "version": 3, "id": "sess-1", "timestamp": "t", "cwd": os.getcwd()})
+out({"type": "agent_start"})
+if mode == "hang":
+    time.sleep(60)
+if mode == "error":
+    print("auth failed", file=sys.stderr)
+    assistant([], "error", errorMessage="401 invalid api key")
+    out({"type": "agent_settled", "aborted": False})
+    sys.exit(1)
+assistant([{"type": "toolCall", "id": "c1", "name": "edit", "arguments": {}}], "toolUse")
+out({"type": "tool_execution_start", "toolCallId": "c1", "toolName": "edit", "args": {"path": "src/a.ts"}})
+out({"type": "tool_execution_end", "toolCallId": "c1", "toolName": "edit", "result": {"content": []}, "isError": False})
+out({"type": "tool_execution_start", "toolCallId": "c2", "toolName": "bash", "args": {"command": "npm test"}})
+out({"type": "tool_execution_end", "toolCallId": "c2", "toolName": "bash",
+     "result": {"content": [{"type": "text", "text": "1 failing"}]}, "isError": True})
+out({"type": "turn_end", "message": {}, "toolResults": []})
+sys.stdout.write('{"type": "broken\n')
+assistant([{"type": "thinking", "thinking": "x"},
+           {"type": "text", "text": "done " + sys.argv[-1]}], "stop")
+out({"type": "agent_settled", "aborted": False})
+'''
+
+with tempfile.TemporaryDirectory() as td:
+    fake = Path(td) / "pi"
+    fake.write_text(FAKE_PI, encoding="utf-8")
+    fake.chmod(0o755)
+
+    def pi_run(*args: str, mode: str = "ok") -> tuple[int, dict]:
+        env = {**os.environ, "PI_BIN": str(fake), "FAKE_PI_MODE": mode,
+               "PI_SUBAGENT_LOG_DIR": str(Path(td) / "logs")}
+        # stdin stays an open pipe, as in an agent's shell: the wrapper must not wait on it.
+        proc = subprocess.Popen([sys.executable, str(PI_RUN), *args], env=env, cwd=td,
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        try:
+            stdout, _ = proc.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            return -1, {}
+        return proc.returncode, json.loads(stdout)
+
+    code, dry = pi_run("--dry-run", "-t", "readonly", "-m", "fake/m1", "-a", "x.md", "--", "-task")
+    cmd = dry.get("command", [])
+    check("pi-subagent: readonly maps to pi's read-only tools and inputs follow --",
+          code == 0 and cmd[cmd.index("--tools") + 1] == "read,grep,find,ls"
+          and cmd[-3:] == ["--", "@x.md", "-task"] and "--no-session" in cmd, str(cmd))
+
+    code, res = pi_run("brief")
+    check("pi-subagent: an inline prompt runs without waiting on an open stdin", code != -1)
+    check("pi-subagent: the final text answer is returned, LF framing intact",
+          code == 0 and res.get("status") == "ok" and res.get("result") == "done brief", str(res)[:300])
+    check("pi-subagent: edited files and failing tool calls are reported",
+          res.get("files_touched") == ["src/a.ts"]
+          and {"tool": "bash", "target": "npm test", "error": "1 failing"} in res.get("tool_calls", []),
+          str(res.get("tool_calls")))
+    check("pi-subagent: usage is summed across assistant messages",
+          res.get("usage", {}).get("totalTokens") == 220 and res.get("unparsed_lines") == 1,
+          str(res.get("usage")))
+
+    code, res = pi_run("brief", mode="error")
+    check("pi-subagent: a provider error surfaces with its message and stderr",
+          code == 1 and res.get("status") == "error" and res.get("errors") == ["401 invalid api key"]
+          and "auth failed" in res.get("stderr_tail", []), str(res)[:300])
+
+    code, res = pi_run("--timeout", "1", "brief", mode="hang")
+    check("pi-subagent: a run past --timeout is killed and reported",
+          code == 124 and res.get("status") == "timeout", f"exit {code}")
 
 print()
 if failures:

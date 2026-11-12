@@ -9,6 +9,7 @@ Currently shipping:
 | `spec-workflow` | Spec-first development workflow: define the product, explore → refine → (wireframe) → design → test-spec each feature, validate spec and tests *before* code, with a traceability lint, a local review site with comment-driven feedback, and handoff to Backlog.md tasks. |
 | `quality-gate` | Guided [qlty](https://qlty.sh) setup: profile the project, decide which checks and thresholds actually earn their noise, apply a tailored `.qlty/qlty.toml`, baseline existing debt without a flag-day cleanup, then enforce the gate in CI, git hooks and agent instructions — with the reasoning committed as `docs/quality/policy.md`. |
 | `prose-gate` | Guided [Vale](https://vale.sh) setup aimed at the prose agents write — preamble, self-narration, marketing adjectives, hedging, sign-offs. Profiles a repo, decides which rules earn their noise, then enforces them *while an agent writes* through a self-limiting PostToolUse hook, with CI as the backstop. |
+| `pi-subagent` | Delegates small, well-scoped tasks to the [pi](https://pi.dev) coding agent on a cheap model (DeepSeek through OpenCode Go, say) and parses `pi --mode json` into one JSON result: final answer, files touched, tool calls with their errors, tokens and cost. |
 
 Pi extensions, in `extensions/pi/` (load them with Pi, not through the marketplace):
 
@@ -23,6 +24,7 @@ Pi extensions, in `extensions/pi/` (load them with Pi, not through the marketpla
 /plugin install spec-workflow@jctosta-toolbox
 /plugin install quality-gate@jctosta-toolbox
 /plugin install prose-gate@jctosta-toolbox
+/plugin install pi-subagent@jctosta-toolbox
 ```
 
 Then either invoke the phase commands directly:
@@ -59,6 +61,10 @@ Then either invoke the phase commands directly:
 /prose-gate:enforce
 ```
 
+```shell
+/pi-subagent:run "add JSDoc to every exported function in src/utils"
+```
+
 …or just talk ("spec this out", "where are we", "apply the review comments", "set up a quality gate",
 "what should we actually lint") — the skills route by intent too.
 
@@ -89,6 +95,7 @@ omp plugin marketplace add jctosta/toolbox
 omp plugin install spec-workflow@jctosta-toolbox
 omp plugin install quality-gate@jctosta-toolbox
 omp plugin install prose-gate@jctosta-toolbox
+omp plugin install pi-subagent@jctosta-toolbox
 ```
 
 Same commands (`/spec-workflow:explore …`), same skills. If you already installed the plugin through
@@ -159,6 +166,13 @@ plugins/
       assets/styles/Agentic/         # the 15 vendored rules this repo also lints itself with
       assets/testdata/               # fixture written to trip every rule
       scripts/                       # vale_advisor.py
+  pi-subagent/
+    plugin.json                      # same manifest pair as above
+    .claude-plugin/plugin.json
+    commands/                        # /pi-subagent:run
+    skills/pi-subagent/
+      SKILL.md                       # when to delegate, writing the brief, reading the result
+      scripts/                       # pi_run.py — runs pi --mode json, prints one JSON summary
 extensions/
   pi/
     llama-slot-keeper/               # Pi extension: index.ts + README.md
@@ -184,6 +198,8 @@ tests/run_checks.py                  # CI entry point
 10. `quality-gate`'s advisor profiles fixture repositories correctly (languages, tools declared in `pyproject.toml` and `package.json`, monorepo sub-projects, hook runners, CI provider), and its `verify` catches a `qlty.toml` that is malformed or inconsistent with the repo it sits in — a plugin enabled for a language that isn't there, a linter the repo already configures being shadowed, a suppression with no stated reason, and a `[smells.*]` key qlty will silently drop — the trap where a check you believe you disabled is still running and `qlty config validate` still exits 0. The four templates it ships stay parseable and complete, and the CI template names the plugins allowed to fail the build.
 
 11. `prose-gate`'s vendored style holds up: every rule declares a level and a pattern that compiles, the `Emoji` rule catches real emoji but not the `→` this repo uses as punctuation (with a guard so that check can't pass once the convention disappears), the shipped vocabulary stays empty of project names, and the fixture still trips all fifteen rules. The hook is proved to stay silent in a repo that hasn't adopted Vale — verified by putting a fake `vale` on `PATH` and asserting it is never invoked, since silence alone would also pass for a hook that shells out every time.
+
+12. `pi-subagent`'s wrapper runs against a stub `pi` that emits the documented event shapes. The summary carries the final answer (with a U+2028 inside it, so the stream splits on LF only), the edited file, the failing tool call, summed usage, a provider error with its stderr, and a `--timeout` kill. The wrapper runs with an open, never-closed stdin, as an agent's shell provides, because reading stdin there blocks forever.
 
 A second job runs `claude plugin validate .` for manifest/frontmatter schema errors.
 

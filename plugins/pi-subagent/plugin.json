@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "pi-subagent",
+  "description": "Delegate small, well-scoped tasks to the pi coding agent running a cheap model and get a structured JSON result back, like any other subagent",
+  "author": {
+    "name": "Carlos Tosta",
+    "url": "https://github.com/jctosta"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jctosta/toolbox",
+  "repository": "https://github.com/jctosta/toolbox",
+  "keywords": [
+    "pi",
+    "subagent",
+    "delegation",
+    "agents",
+    "opencode"
+  ]
+}
